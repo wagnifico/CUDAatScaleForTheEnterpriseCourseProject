@@ -36,8 +36,8 @@ NVCC = nvcc
 CXX = g++
 
 CXXFLAGS = -std=c++17
-CXXFLAGS += -I../cuda-samples/Common -I../cuda-samples/Common/UtilNPP
-CXXFLAGS += -I../FreeImage/Source
+CXXFLAGS += -I./external/cuda-samples/Common -I./external/cuda-samples/Common/UtilNPP
+CXXFLAGS += -I./external/FreeImage/Source
 
 LDFLAGS = -lcudart -lnppc -lnppial -lnppicc -lnppidei -lnppif -lnppig -lnppim -lnppist -lnppisu -lnppitc
 LDFLAGS += -lnppisu_static -lnppif_static -lnppc_static -lculibos -lfreeimage
@@ -56,7 +56,26 @@ TARGET = $(BIN_DIR)/imageRotationNPP
 # Define the default rule
 all: $(TARGET)
 
-build: $(TARGET)
+# Get external code if not available
+get:
+	@if [ -d "external/cuda-samples" ]; then \
+		echo "Found cuda-samples"; \
+	else \
+		cd external; \
+		git clone https://github.com/NVIDIA/cuda-samples; \
+		cd ..; \
+	fi
+	@if [ -d "external/FreeImage" ]; then \
+		echo "Found FreeImage"; \
+	else \
+		cd external; \
+		wget http://downloads.sourceforge.net/freeimage/FreeImage3180.zip; \
+		unzip FreeImage3180.zip; \
+		rm FreeImage3180.zip; \
+		cd ..; \
+	fi
+
+build: get $(TARGET)
 
 # Rule for building the target executable
 $(TARGET): $(SRC)
@@ -75,6 +94,7 @@ clean:
 help:
 	@echo "Available make commands:"
 	@echo "  make        - Build the project."
+	@echo "  make get    - Get external dependencies (cuda-samples, FreeImage)."
 	@echo "  make run    - Run the project."
 	@echo "  make clean  - Clean up the build files."
 	@echo "  make build  - Build the app."
