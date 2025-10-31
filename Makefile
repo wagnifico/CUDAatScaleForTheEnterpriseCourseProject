@@ -32,10 +32,16 @@
 ################################################################################
 
 # Define the compiler and flags
-NVCC = /usr/local/cuda/bin/nvcc
+NVCC = nvcc
 CXX = g++
-CXXFLAGS = -std=c++11 -I/usr/local/cuda/include -Iinclude
-LDFLAGS = -L/usr/local/cuda/lib64 -lcudart -lnppc -lnppial -lnppicc -lnppidei -lnppif -lnppig -lnppim -lnppist -lnppisu -lnppitc
+
+CXXFLAGS = -std=c++17
+CXXFLAGS += -I../cuda-samples/Common -I../cuda-samples/Common/UtilNPP
+CXXFLAGS += -I../FreeImage/Source
+
+LDFLAGS = -lcudart -lnppc -lnppial -lnppicc -lnppidei -lnppif -lnppig -lnppim -lnppist -lnppisu -lnppitc
+LDFLAGS += -lnppisu_static -lnppif_static -lnppc_static -lculibos -lfreeimage
+
 
 # Define directories
 SRC_DIR = src
@@ -50,6 +56,8 @@ TARGET = $(BIN_DIR)/imageRotationNPP
 # Define the default rule
 all: $(TARGET)
 
+build: $(TARGET)
+
 # Rule for building the target executable
 $(TARGET): $(SRC)
 	mkdir -p $(BIN_DIR)
@@ -63,15 +71,11 @@ run: $(TARGET)
 clean:
 	rm -rf $(BIN_DIR)/*
 
-# Installation rule (not much to install, but here for completeness)
-install:
-	@echo "No installation required."
-
 # Help command
 help:
 	@echo "Available make commands:"
 	@echo "  make        - Build the project."
 	@echo "  make run    - Run the project."
 	@echo "  make clean  - Clean up the build files."
-	@echo "  make install- Install the project (if applicable)."
+	@echo "  make build  - Build the app."
 	@echo "  make help   - Display this help message."
